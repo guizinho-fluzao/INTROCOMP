@@ -6,7 +6,7 @@ pygame.init()
 largura_tela, altura_tela = 1024, 768
 fps = 30
 
-# Setup screen
+#configura a janela
 screen = pygame.display.set_mode((largura_tela, altura_tela))
 pygame.display.set_caption("introbattle")
 clock = pygame.time.Clock()
@@ -27,7 +27,7 @@ imagem_guerreiro = pygame.transform.scale(imagem_guerreiro, tamanho_escala)
 def desenha_guerreiro():
 	screen.blit(imagem_guerreiro, (0, 0))
 
-# Main Game Loop
+#game loop
 running = True
 while running:
     desenha_plano_fundo()
