@@ -1,40 +1,44 @@
 import pygame
+from personagens import Guerreiro, Curandeiro, Tanque, Assasino, Mago, Bardo, Inimigo
 
+#inicia pygame, informações de janela e fps
 pygame.init()
+largura_tela, altura_tela = 1024, 768
+fps = 30
 
-#"Relógio" in-code
+# Setup screen
+screen = pygame.display.set_mode((largura_tela, altura_tela))
+pygame.display.set_caption("introbattle")
 clock = pygame.time.Clock()
 
-class Window:
-    width = 1024  #largura
-    height = 768  #altura
-    color = (0, 0, 0)  #cor
+#plano de fundo e ajuste pro tamanho correto
+fundo = pygame.image.load('imagens/teste 7.jpg').convert_alpha()
+tamanho_escala = (1024, 768)
+fundo = pygame.transform.scale(fundo, tamanho_escala)
 
-    def __init__(self, largura, altura):  #construtor
-        self.width = largura
-        self.height = altura
+def desenha_plano_fundo():
+    screen.blit(fundo, (0, 0))
 
-#abre a janela com as dimensões corretas
-w = Window(1024, 768)
-win = pygame.display.set_mode((w.width, w.height))
-pygame.display.set_caption('JOGO INTROCOMP')
+#renderizar os personagens (não está funcionando por algum motivo)
+imagem_guerreiro = pygame.image.load('imagens/Paladino.png').convert_alpha()
+tamanho_escala = (1024, 768)
+imagem_guerreiro = pygame.transform.scale(imagem_guerreiro, tamanho_escala)
 
-background = pygame.image.load('teste 7.jpg')  #Imagem de fundo
-background = pygame.transform.scale(background, (w.width, w.height))
+def desenha_guerreiro():
+	screen.blit(imagem_guerreiro, (0, 0))
 
+# Main Game Loop
 running = True
-while running: #GAME LOOP
-    #Checagem de eventos
+while running:
+    desenha_plano_fundo()
+
+    #identifica eventos 
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:  #Clicar no 'X' pra fechar
+        if event.type == pygame.QUIT:
             running = False
 
-    win.fill(w.color)
-    win.blit(background, (0, 0)) #Desenha o fundo a cada tick
+    # velocidade de atualização
+    pygame.display.flip()
+    clock.tick(fps)
 
-    #Atualização display e fps
-    pygame.display.update()
-    clock.tick(30)  #limitar 30 fps
-
-#propriamente fecha o jogo e para o código
 pygame.quit()
