@@ -45,18 +45,21 @@ class Personagem():
     # ATAQUE BÁSICO
 
     def atacar(self, alvo):
-        if not self.vulneravel: # TODOS QUE ATACAM PERDEM INVULNERABILIDADE. PERDER INVULNERABILIDADE TE DEIXA QUEBRADO. 
-            self.vulneravel = True
-            self.quebrado = True
+
         if self.quebrado:
-            return print('O PERSONAGEM ESTÁ QUEBRADO!')
+            return print(f'O {self.nome} ESTÁ QUEBRADO E NÃO CONSEGUE ATACAR') # PERSONAGENS QUEBRADOS NÃO ATACAM
 
         if alvo.vulneravel:
             dano = round((self.ataque) * (10 / (10 + alvo.defesa)) * alvo.danoRatio)  # DANO BASE DECIDIDO VEZES UMA RAZÃO 
             print(f'{self.nome} ATACOU {alvo.nome}, CAUSANDO {dano} DE DANO!')
             alvo.mudar_pv(dano)
         else:   # ALVOS INVULNERÁVEIS NÃO PODEM SER ATACADOS E FAZEM O ATACANTE PERDER SEU ATAQUE (na vdd o atacante não poderia atacá-lo, mas ok)
-            print('O ALVO ESTÁ INVULNERÁVEL!')
+            print(f'O {alvo.nome} ESTÁ INVULNERÁVEL!')
+
+        if not self.vulneravel: # TODOS QUE ATACAM PERDEM INVULNERABILIDADE. PERDER INVULNERABILIDADE TE DEIXA QUEBRADO. 
+            self.vulneravel = True
+            self.quebrado = True
+
 
         self.modClear()
 
@@ -94,10 +97,10 @@ class Guerreiro(Personagem):
         if not self.quebrado:
             dano = round(self.ataque * 3)
             alvo.mudar_pv(dano) 
-            print(f'{self.nome} ATACOU {alvo.nome}, CAUSANDO {dano} DE DANO!')
+            print(f'{self.nome} DEU UMA PANCADA EM {alvo.nome}, CAUSANDO {dano} DE DANO!')
             self.quebrado = True
         else:
-            print('O PERSONAGEM ESTÁ QUEBRADO!')
+            print(f'O {self.nome} ESTÁ QUEBRADO!')
 
 class Assassino(Personagem):
 
@@ -109,33 +112,39 @@ class Assassino(Personagem):
         if not self.quebrado:
             if self.vulneravel:
                 self.vulneravel = False
+                print(f'{self.nome} SE ESCONDE E SE PREPARA!')
             else:
                 self.modificador[0] += 2
+                print(f'{self.nome} ESTÁ FICANDO MAIS FORTE!')
         else:
-            print('O PERSONAGEM ESTÁ QUEBRADO!')
+            print(f'O {self.nome} ESTÁ QUEBRADO!')
 
 class Tanque(Personagem):
 
     def __init__(self, nome):
         super().__init__(nome, ATK=3, DEF=5, VEL=1)
 
-    def sentinela(self, target): # SENTINELA: AUMENTA A PRÓPRIA DEFESA E A DE UM ALIADO
+    def sentinela(self, alvo): # SENTINELA: AUMENTA A PRÓPRIA DEFESA E A DE UM ALIADO
         self.modificador[1] += self.defesa + 3
-        target.modificador[1] += target.defesa + 3
+        alvo.modificador[1] += alvo.defesa + 3
+        print(f'{self.nome} SE FORTIFICA, PROTEGENDO {alvo.nome}')
  
 class Curandeiro(Personagem):
 
     def __init__(self, nome):
         super().__init__(nome, ATK=1, DEF=5, VEL=3)
 
-    def cura(self, target): # CURA: REGENERA VIDA E LIMPA A CONDIÇÃO "QUEBRADO"
-        cura = (3 + target.defesa) * -1
+    def cura(self, alvo): # CURA: REGENERA VIDA E LIMPA A CONDIÇÃO "QUEBRADO"
+        cura = (3 + alvo.defesa) * -1
         if cura > -3:
             cura = -3
-        target.mudar_pv(cura)
-        if target.quebrado:
-            target.quebrado = False
-
+        alvo.mudar_pv(cura)
+        print(f'{self.nome} RECUPERA {cura} DE VIDA DE {alvo.nome}', end=" ")
+        if alvo.quebrado:
+            alvo.quebrado = False
+            print('E ELE DEIXA DE ESTAR QUEBRADO', end=" ")
+        print('!')
+        
 class Mago(Personagem):
 
     def __init__(self, nome):
@@ -158,17 +167,18 @@ class Bardo(Personagem):
     def __init__(self, nome):
         super().__init__(nome, ATK=1, DEF=3, VEL=5)
 
-    def inspirar(self, target): # INSPIRAR: ADICIONA 5 DE MOD EM UM STAT ALEATÓRIO DE UM ALIADO
+    def inspirar(self, alvo): # INSPIRAR: ADICIONA 5 DE MOD EM UM STAT ALEATÓRIO DE UM ALIADO
         stat = random.randint(0,2)
-        target.modificador[stat] += 5
+        alvo.modificador[stat] += 5
         stats = ['ATAQUE', 'DEFESA', 'VELOCIDADE']
-        print(f'{target.nome} GANHOU +5 EM {stats[stat]}')    
+        print(f'{alvo.nome} GANHOU +5 EM {stats[stat]}')    
 
 class Inimigo(Personagem):
 
     def __init__(self, nome):
         super().__init__(nome, ATK= 2, DEF=2, VEL=3)
         self.insanidadeModificador = [0, 0, 0]
+        self.ehInimigo = True
 
     def insanidade(self): # INSANIDADE: A CADA RODADA OS INIMIGOS GANHAM MODIFICADORES NOVOS NOS STATS DELES
         regulador = 6
@@ -228,54 +238,39 @@ def criar_inimigos():
 
     return Inimigos
 
-def ordemBatalha(personagens):
-    personagens.sort(key= lambda p: p.velocidade)
-    print(personagens)
+def ordenaVelocidade(personagens):
+    personagens.sort(reverse = True, key= lambda p: p.velocidade)
+    print([str(personagem) for personagem in personagens])
+
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ CLASSES ^ ~~~~ CÓDIGO v ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
+
 def simular():
-    #Aliados = criar_aliados()
-    #Inimigos = criar_inimigos()
-#
-    #Personagens = Aliados + Inimigos
-    #
-    #for i in Personagens:
-    #    i.mostrarStats()
-    #ordemBatalha(Personagens)
+    # Aliados = criar_aliados()
+    # Inimigos = criar_inimigos()
 
-    amigo = Guerreiro('amigo')
-    desamigo = Assassino('desamigo')
-    amigona = Curandeiro('amigona')
-
-    Personagens = [amigo, desamigo]
-
-    desamigo.mostrarStats()
-    amigo.pancada(desamigo)
-    desamigo.mostrarStats()
-
-    amigona.cura(amigo)
-
-    while True:
-
-        amigo.mostrarStats()
-        desamigo.atacar(amigo)
-        amigo.mostrarStats()
-
-
-        if amigo.vida <= 0:
-            print('Desamigo Venceu!')
-            break
-
-        desamigo.mostrarStats()
-        amigo.atacar(desamigo)
-        desamigo.mostrarStats()
-    
-        if desamigo.vida <= 0:
-            print("Amigo Venceu!")
-            break
-        
+    # Personagens = Aliados + Inimigos
+    # print([str(personagem) for personagem in Personagens])
+    # ordenaVelocidade(Personagens)
 
     return None
 
 simular()
+
+amigo = Assassino('amigo')
+desamigo = Inimigo('desamigo')
+
+for i in range(2):
+    amigo.mostrarStats()
+    amigo.espreitar()
+    amigo.mostrarStats()
+    desamigo.atacar(amigo)
+    input()
+
+amigo.atacar(desamigo)
+desamigo.atacar(amigo)
+amigo.atacar(desamigo)
+desamigo.atacar(amigo)
+amigo.atacar(desamigo)
+desamigo.atacar(amigo)
